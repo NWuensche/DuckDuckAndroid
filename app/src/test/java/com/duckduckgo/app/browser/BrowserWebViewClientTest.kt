@@ -1093,6 +1093,15 @@ class BrowserWebViewClientTest {
     }
 
     @Test
+    fun whenNavigatingToRedditThenRequestIsBlocked() {
+        whenever(webResourceRequest.url).thenReturn("https://www.reddit.com/r/android".toUri())
+
+        assertTrue(testee.shouldOverrideUrlLoading(webView, webResourceRequest))
+        verify(listener).closeApp()
+        verifyNoInteractions(specialUrlDetector)
+    }
+
+    @Test
     fun whenRewriteRequestWithCustomQueryParamsAndOpenedInNewTabThenLoadRewrittenUrlInPost() {
         val mockWebView = getImmediatelyInvokedMockWebView()
         val urlType = SpecialUrlDetector.UrlType.Web(EXAMPLE_URL)

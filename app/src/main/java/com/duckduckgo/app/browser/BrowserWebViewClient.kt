@@ -96,6 +96,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 
 private const val ABOUT_BLANK = "about:blank"
+private const val REDDIT_DOMAIN = "reddit.com"
 
 class BrowserWebViewClient @Inject constructor(
     private val webViewHttpAuthStore: WebViewHttpAuthStore,
@@ -203,6 +204,10 @@ class BrowserWebViewClient @Inject constructor(
     ): Boolean {
         try {
             logcat(VERBOSE) { "shouldOverride webViewUrl: ${webView.url} URL: $url" }
+            if (isBlockedDomain(url)) {
+                webViewClientListener?.closeApp()
+                return true
+            }
             webViewClientListener?.onShouldOverride()
             if (requestInterceptor.shouldOverrideUrlLoading(webViewClientListener, url, webView.url?.toUri(), isForMainFrame)) {
                 return true
@@ -372,6 +377,11 @@ class BrowserWebViewClient @Inject constructor(
             }
             return false
         }
+    }
+
+    private fun isBlockedDomain(uri: Uri): Boolean {
+        val host = uri.host?.lowercase() ?: return false
+        return host == REDDIT_DOMAIN || host.endsWith(".$REDDIT_DOMAIN")
     }
 
     private fun shouldOverrideWebRequest(

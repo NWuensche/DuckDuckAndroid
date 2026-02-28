@@ -2470,6 +2470,10 @@ class BrowserTabFragment :
                 hideKeyboardForChat()
             }
 
+            is Command.CloseApp -> {
+                requireActivity().finishAffinity()
+            }
+
             is Command.BrokenSiteFeedback -> {
                 launchBrokenSiteFeedback(it.data)
             }

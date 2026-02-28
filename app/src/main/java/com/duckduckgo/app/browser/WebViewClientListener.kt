@@ -99,6 +99,8 @@ interface WebViewClientListener {
 
     fun closeCurrentTab()
 
+    fun closeApp()
+
     fun closeAndSelectSourceTab()
 
     fun upgradedToHttps()

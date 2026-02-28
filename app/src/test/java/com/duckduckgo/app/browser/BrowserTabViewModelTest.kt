@@ -72,6 +72,7 @@ import com.duckduckgo.app.browser.certificates.BypassedSSLCertificatesRepository
 import com.duckduckgo.app.browser.certificates.remoteconfig.SSLCertificatesFeature
 import com.duckduckgo.app.browser.commands.Command
 import com.duckduckgo.app.browser.commands.Command.CloseCustomTab
+import com.duckduckgo.app.browser.commands.Command.CloseApp
 import com.duckduckgo.app.browser.commands.Command.EnqueueCookiesAnimation
 import com.duckduckgo.app.browser.commands.Command.EscapeMaliciousSite
 import com.duckduckgo.app.browser.commands.Command.HideBrokenSitePromptCta
@@ -1431,6 +1432,16 @@ class BrowserTabViewModelTest {
         testee.onUserSubmittedQuery("foo")
         verify(mockCommandObserver, atLeastOnce()).onChanged(commandCaptor.capture())
         assertTrue(commandCaptor.lastValue is Navigate)
+    }
+
+    @Test
+    fun whenInputIsRedditUrlThenCloseAppCommandSubmittedToActivity() {
+        whenever(mockOmnibarConverter.convertQueryToUrl("reddit.com", null)).thenReturn("https://reddit.com")
+
+        testee.onUserSubmittedQuery("reddit.com")
+
+        assertCommandIssued<CloseApp>()
+        assertCommandNotIssued<Navigate>()
     }
 
     @Test

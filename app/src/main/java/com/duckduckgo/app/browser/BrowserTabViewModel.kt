@@ -81,6 +81,7 @@ import com.duckduckgo.app.browser.commands.Command.CloseCustomTab
 import com.duckduckgo.app.browser.commands.Command.ConvertBlobToDataUri
 import com.duckduckgo.app.browser.commands.Command.CopyAliasToClipboard
 import com.duckduckgo.app.browser.commands.Command.CopyLink
+import com.duckduckgo.app.browser.commands.Command.CloseApp
 import com.duckduckgo.app.browser.commands.Command.DeleteFavoriteConfirmation
 import com.duckduckgo.app.browser.commands.Command.DeleteFireproofConfirmation
 import com.duckduckgo.app.browser.commands.Command.DeleteSavedSiteConfirmation
@@ -418,6 +419,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
 private const val SCAM_PROTECTION_REPORT_ERROR_URL = "https://duckduckgo.com/malicious-site-protection/report-error?url="
+private const val REDDIT_DOMAIN = "reddit.com"
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ContributesViewModel(FragmentScope::class)
@@ -1318,6 +1320,11 @@ class BrowserTabViewModel @Inject constructor(
                     urlToNavigate = type.cleanedUrl
                 }
 
+                if (isBlockedDomain(urlToNavigate)) {
+                    command.value = CloseApp
+                    return
+                }
+
                 if (shouldClearHistoryOnNewQuery()) {
                     returnedHomeAfterSiteLoaded = false
                     command.value = ResetHistory
@@ -1359,6 +1366,11 @@ class BrowserTabViewModel @Inject constructor(
     }
 
     private fun getUrlHeaders(url: String?): Map<String, String> = url?.let { customHeadersProvider.getCustomHeaders(it) } ?: emptyMap()
+
+    private fun isBlockedDomain(url: String): Boolean {
+        val host = url.toUri().host?.lowercase() ?: return false
+        return host == REDDIT_DOMAIN || host.endsWith(".$REDDIT_DOMAIN")
+    }
 
     private fun extractVerticalParameter(currentUrl: String?): String? {
         val url = currentUrl ?: return null
@@ -1470,6 +1482,10 @@ class BrowserTabViewModel @Inject constructor(
                 removeCurrentTabFromRepository()
             }
         }
+    }
+
+    override fun closeApp() {
+        command.value = CloseApp
     }
 
     private fun openNewTab() {

@@ -98,6 +98,8 @@ sealed class Command {
 
     data object HideKeyboardForChat : Command()
 
+    data object CloseApp : Command()
+
     class ShowFullScreen(
         val view: View,
     ) : Command()
